@@ -9,7 +9,6 @@
     "dev": "nodemon src/index.js",
     "prepare": "husky"
   },
-
   "keywords": [],
   "license": "ISC",
   "description": "",
