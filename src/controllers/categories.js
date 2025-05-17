@@ -1,27 +1,20 @@
-import CategoryModel from '../db/models/categories.js';
+import createHttpError from 'http-errors';
 
-export const getIncomeCategories = async (req, res) => {
-  const categories = await CategoryModel.find({
-    userId: req.user._id,
-    type: 'income',
-  });
+import { getCategoriesByType } from '../services/categories.js';
 
-  res.json({
-    status: 200,
-    message: 'Income categories fetched',
-    data: categories,
-  });
-};
+export const getCategories = async (req, res) => {
+  const { type } = req.query;
 
-export const getExpenseCategories = async (req, res) => {
-  const categories = await CategoryModel.find({
-    userId: req.user._id,
-    type: 'expense',
-  });
+  if (!['income', 'expense'].includes(type)) {
+    throw createHttpError(400, 'Invalid or missing type parameter');
+  }
+
+  const { _id: userId } = req.user;
+  const data = await getCategoriesByType(type, userId);
 
   res.json({
     status: 200,
-    message: 'Expense categories fetched',
-    data: categories,
+    message: `${type} categories fetched`,
+    data,
   });
 };
