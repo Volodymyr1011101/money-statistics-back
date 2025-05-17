@@ -1,15 +1,13 @@
-import { json, Router } from "express";
+import { json, Router } from 'express';
 
-import { ctrlWrapper } from "../utils/ctrlWrapper.js";
-import { validateBody } from "../middlewares/validateBody.js";
-import { authenticate } from "../middlewares/authenticate.js";
+import { ctrlWrapper } from '../utils/ctrlWrapper.js';
+import { validateBody } from '../middleware/validateBody.js';
 
 import {
   userSchema,
   sendResetEmailSchema,
   resetPasswordSchema,
-  loginWithGoogleOAuthSchema,
-} from "../validation/users.js";
+} from '../validation/users.js';
 
 import {
   loginUserController,
@@ -18,52 +16,41 @@ import {
   registerUserController,
   sendResetEmailController,
   resetPasswordController,
-  getGoogleOAuthUrlController,
-  loginWithGoogleController,
-} from "../controllers/users.js";
+} from '../controllers/users.js';
 
 const router = Router();
 const jsonParser = json();
 
 router.post(
-  "/register",
+  '/register',
   jsonParser,
   validateBody(userSchema),
-  ctrlWrapper(registerUserController)
+  ctrlWrapper(registerUserController),
 );
 
 router.post(
-  "/login",
+  '/login',
   jsonParser,
   validateBody(userSchema),
-  ctrlWrapper(loginUserController)
+  ctrlWrapper(loginUserController),
 );
 
-router.post("/refresh", ctrlWrapper(refreshUserSessionController));
+router.post('/refresh', ctrlWrapper(refreshUserSessionController));
 
-router.post("/logout", ctrlWrapper(logoutUserController));
-
-router.get("/get-oauth-url", ctrlWrapper(getGoogleOAuthUrlController));
+router.post('/logout', ctrlWrapper(logoutUserController));
 
 router.post(
-  "/confirm-oauth",
-  jsonParser,
-  validateBody(loginWithGoogleOAuthSchema),
-  ctrlWrapper(loginWithGoogleController)
-);
-
-router.post(
-  "/send-reset-email",
+  '/send-reset-email',
   jsonParser,
   validateBody(sendResetEmailSchema),
-  ctrlWrapper(sendResetEmailController)
+  ctrlWrapper(sendResetEmailController),
 );
 
 router.post(
-  "/reset-pwd",
+  '/reset-pwd',
   jsonParser,
   validateBody(resetPasswordSchema),
-  ctrlWrapper(resetPasswordController)
+  ctrlWrapper(resetPasswordController),
 );
 
 export default router;

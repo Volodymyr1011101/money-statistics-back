@@ -1,11 +1,11 @@
-import bcrypt from "bcrypt";
-import { randomBytes } from "crypto";
-import createHttpError from "http-errors";
-import jwt from "jsonwebtoken";
-import { env } from "../utils/env.js";
-import path from "node:path";
-import fs from "node:fs/promises";
-import handlebars from "handlebars";
+import bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
+import createHttpError from 'http-errors';
+import jwt from 'jsonwebtoken';
+import { getEnvVariable } from '../utils/getEnvVariable.js';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import handlebars from 'handlebars';
 
 import {
   RANDOM_BYTES,
@@ -14,16 +14,13 @@ import {
   JWT,
   ENV_VARS,
   EMAIL_TEMPLATE,
-} from "../constants/index.js";
+} from '../constants/index.js';
 
-import {
-  getFullNameFromGoogleTokenPayload,
-  validateCode,
-} from "../utils/googleOAuth2.js";
-import { sendEmail } from "../utils/sendEmail.js";
 
-import { UserCollection } from "../db/models/users.js";
-import { SessionCollection } from "../db/models/sessions.js";
+import { sendEmail } from '../utils/sendEmail.js';
+
+import UserCollection from '../db/models/user.js';
+import { SessionCollection } from '../db/models/sessions.js';
 
 export const countUsers = async () => {
   return UserCollection.countDocuments();
@@ -31,7 +28,7 @@ export const countUsers = async () => {
 
 export const registerUser = async (payload) => {
   const user = await UserCollection.findOne({ email: payload.email });
-  if (user) throw createHttpError.Conflict("Email in use");
+  if (user) throw createHttpError.Conflict('Email in use');
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
   return await UserCollection.create({
@@ -41,8 +38,8 @@ export const registerUser = async (payload) => {
 };
 
 const createSession = () => {
-  const accessToken = randomBytes(RANDOM_BYTES).toString("hex");
-  const refreshToken = randomBytes(RANDOM_BYTES).toString("hex");
+  const accessToken = randomBytes(RANDOM_BYTES).toString('hex');
+  const refreshToken = randomBytes(RANDOM_BYTES).toString('hex');
 
   return {
     accessToken,
@@ -54,10 +51,10 @@ const createSession = () => {
 
 export const loginUser = async (payload) => {
   const user = await UserCollection.findOne({ email: payload.email });
-  if (!user) throw createHttpError.NotFound("User not found.");
+  if (!user) throw createHttpError.NotFound('User not found.');
 
   const isEqual = await bcrypt.compare(payload.password, user.password);
-  if (!isEqual) throw createHttpError.Unauthorized("Unauthorized user.");
+  if (!isEqual) throw createHttpError.Unauthorized('Unauthorized user.');
 
   await SessionCollection.deleteMany({ userId: user._id });
   const newSession = createSession();
@@ -74,10 +71,10 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
     _id: sessionId,
     refreshToken,
   });
-  if (!session) throw createHttpError.Unauthorized("Session not found");
+  if (!session) throw createHttpError.Unauthorized('Session not found');
 
   if (new Date() > new Date(session.refreshTokenValidUntil)) {
-    throw createHttpError.Unauthorized("Session token expired");
+    throw createHttpError.Unauthorized('Session token expired');
   }
 
   const newSession = createSession();
@@ -103,17 +100,17 @@ export const updateUser = async (userId, payload) => {
 
 export const sendResetToken = async (email) => {
   const user = await UserCollection.findOne({ email });
-  if (!user) throw createHttpError.NotFound("User not found");
+  if (!user) throw createHttpError.NotFound('User not found');
 
   const resetToken = jwt.sign(
     { sub: user._id, email },
-    env(ENV_VARS.JWT_SECRET),
-    { expiresIn: JWT.EXPIRE_IN }
+    getEnvVariable(ENV_VARS.JWT_SECRET),
+    { expiresIn: JWT.EXPIRE_IN },
   );
 
   const templatePath = path.join(
     EMAIL_TEMPLATE.TEMPLATES_DIR,
-    EMAIL_TEMPLATE.TEMPLATE_FILE_NAME
+    EMAIL_TEMPLATE.TEMPLATE_FILE_NAME,
   );
 
   const templateSource = (await fs.readFile(templatePath)).toString();
@@ -126,15 +123,15 @@ export const sendResetToken = async (email) => {
 
   try {
     await sendEmail({
-      from: env(ENV_VARS.BREVO.SMTP_FROM),
+      from: getEnvVariable(ENV_VARS.BREVO.SMTP_FROM),
       to: email,
-      subject: "Reset your password",
+      subject: 'Reset your password',
       html,
     });
   } catch (err) {
-    console.error("Email send error:", err);
+    console.error('Email send error:', err);
     throw createHttpError.InternalServerError(
-      "Failed to send the email, please try again later."
+      'Failed to send the email, please try again later.',
     );
   }
 };
@@ -144,19 +141,19 @@ export const resetPassword = async (payload) => {
   try {
     decoded = jwt.verify(payload.token, env(ENV_VARS.JWT_SECRET));
   } catch (err) {
-    throw createHttpError.Unauthorized("Token is expired or invalid.");
+    throw createHttpError.Unauthorized('Token is expired or invalid.');
   }
 
   const user = await UserCollection.findOne({
     _id: decoded.sub,
     email: decoded.email,
   });
-  if (!user) throw createHttpError.NotFound("User not found");
+  if (!user) throw createHttpError.NotFound('User not found');
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
   await UserCollection.updateOne(
     { _id: user._id },
-    { password: encryptedPassword }
+    { password: encryptedPassword },
   );
   await SessionCollection.deleteMany({ userId: user._id });
 };
@@ -164,7 +161,7 @@ export const resetPassword = async (payload) => {
 export const loginOrSignupWithGoogle = async (code) => {
   const loginTicket = await validateCode(code);
   const payload = loginTicket.getPayload();
-  if (!payload) throw createHttpError.Unauthorized("Unauthorized user");
+  if (!payload) throw createHttpError.Unauthorized('Unauthorized user');
 
   let user = await UserCollection.findOne({ email: payload.email });
   if (!user) {
