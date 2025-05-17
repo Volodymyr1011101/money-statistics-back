@@ -1,30 +1,14 @@
 import createHttpError from 'http-errors';
 
 import {
-  countUsers,
   loginUser,
   logoutUser,
   refreshUsersSession,
   registerUser,
   getUserById,
-  updateUser,
-  sendResetToken,
-  resetPassword,
-  } from '../services/users.js';
+} from '../services/users.js';
 
 import { COOKIES, HTTP_STATUSES, THIRTY_DAYS } from '../constants/index.js';
-
-export const countUsersController = async (req, res) => {
-  const usersCount = await countUsers();
-
-  res.status(HTTP_STATUSES.OK).json({
-    status: HTTP_STATUSES.OK,
-    message: 'Successfully found count users!',
-    data: {
-      usersCount,
-    },
-  });
-};
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
@@ -108,42 +92,6 @@ export const getUserByIdController = async (req, res, next) => {
   });
 };
 
-export const patchUserController = async (req, res, next) => {
-  const userId = req.user._id;
-  const photo = req.file;
-  let photoUrl;
-
-  if (photo) {
-    photoUrl = await saveFileToCloudinary(photo);
-  }
-
-  const result = await updateUser(userId, {
-    ...req.body,
-    photo: photoUrl,
-  });
-
-  if (!result) {
-    next(createHttpError.NotFound('User not found'));
-    return;
-  }
-
-  res.json({
-    status: HTTP_STATUSES.OK,
-    message: 'Successfully patched a user!',
-    data: result.user,
-  });
-};
-
-export const sendResetEmailController = async (req, res) => {
-  await sendResetToken(req.body.email);
-
-  res.json({
-    status: HTTP_STATUSES.OK,
-    message: 'Reset password email has been successfully sent.',
-    data: {},
-  });
-};
-
 export const resetPasswordController = async (req, res) => {
   await resetPassword(req.body);
 
@@ -153,4 +101,3 @@ export const resetPasswordController = async (req, res) => {
     data: {},
   });
 };
-

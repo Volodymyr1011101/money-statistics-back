@@ -9,25 +9,6 @@ export const ENV_VARS = {
     MONGODB_DB: 'MONGODB_DB',
   },
 
-  BREVO: {
-    SMTP_HOST: 'SMTP_HOST',
-    SMTP_PORT: 'SMTP_PORT',
-    SMTP_USER: 'SMTP_USER',
-    SMTP_PASSWORD: 'SMTP_PASSWORD',
-    SMTP_FROM: 'SMTP_FROM',
-  },
-
-  CLOUDINARY: {
-    CLOUD_NAME: 'CLOUDINARY_CLOUD_NAME',
-    API_KEY: 'CLOUDINARY_API_KEY',
-    API_SECRET: 'CLOUDINARY_API_SECRET',
-  },
-
-  GOOGLE: {
-    AUTH_CLIENT_ID: 'GOOGLE_AUTH_CLIENT_ID',
-    AUTH_CLIENT_SECRET: 'GOOGLE_AUTH_CLIENT_SECRET',
-  },
-
   JWT_SECRET: 'JWT_SECRET',
 
   APP_DOMAIN: 'APP_DOMAIN',
@@ -71,10 +52,6 @@ export const JOI_VALIDATION_MSG = {
 export const TEMP_UPLOAD_DIR = path.join(process.cwd(), 'temp');
 export const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 
-export const EMAIL_TEMPLATE = {
-  TEMPLATES_DIR: path.join(process.cwd(), 'src', 'templates'),
-  TEMPLATE_FILE_NAME: 'reset-password-email.html',
-};
 export const RANDOM_BYTES = 30;
 
 export const SALT = 10;
@@ -86,10 +63,6 @@ export const THIRTY_DAYS = 30 * ONE_DAY;
 export const COOKIES = {
   SESSION_ID: 'sessionId',
   REFRESH_TOKEN: 'refreshToken',
-};
-
-export const JWT = {
-  EXPIRE_IN: '1d',
 };
 
 export const VALIDATION_LENGTH = {

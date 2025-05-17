@@ -1,16 +1,5 @@
 import eslintPluginImport from 'eslint-plugin-import';
 
-module.exports = {
-  settings: {
-    'import/resolver': {
-      alias: {
-        map: [['@', './src']],
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
-  },
-};
-
 /** @type {import("eslint").Linter.FlatConfig} */
 export default [
   {
