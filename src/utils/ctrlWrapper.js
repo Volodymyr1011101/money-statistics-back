@@ -5,6 +5,6 @@ export const ctrlWrapper = (ctrl) => {
         } catch (e) {
             next(e);
         }
-    }
+    };
     return func;
-}
+};
