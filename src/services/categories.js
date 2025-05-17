@@ -30,7 +30,12 @@ export const initializeDefaultCategories = async (userId) => {
     userId,
   }));
 
-  await Category.insertMany([...income, ...expenses]);
+  await CategoryModel.insertMany([...income, ...expenses]);
 };
 
 //  Викликай initializeDefaultCategories(user._id) після реєстрації користувача.
+
+export const getCategoriesByType = async (type, userId) => {
+  const categories = await CategoryModel.find({ userId, type });
+  return categories;
+};
