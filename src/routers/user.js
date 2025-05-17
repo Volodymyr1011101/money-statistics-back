@@ -17,13 +17,4 @@ router.get('/count', ctrlWrapper(countUsersController));
 
 router.use(authenticate);
 
-router.get('/', ctrlWrapper(getUserByIdController));
-
-router.patch(
-  '/',
-  // upload.single('photo'),
-  validateBody(updateUserSchema),
-  ctrlWrapper(patchUserController),
-);
-
 export default router;
