@@ -1,4 +1,5 @@
-import path from 'path';
+import path from 'node:path';
+
 import { randomBytes } from 'crypto';
 
 export const ENV_VARS = {
@@ -49,9 +50,6 @@ export const JOI_VALIDATION_MSG = {
   MONTH: '{{#label}} format must be YYYY-MM. You provided: {{#value}}',
 };
 
-export const TEMP_UPLOAD_DIR = path.join(process.cwd(), 'temp');
-export const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-
 export const RANDOM_BYTES = 30;
 
 export const SALT = 10;
@@ -85,3 +83,11 @@ export const TOKEN_PARAMS = {
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const transactionType = ['income', 'expense'];
+
+export const TEMP_UPLOAD_DIR = path.resolve('temp');
+
+export const CLOUDINARY = {
+  CLOUD_NAME: 'CLOUD_NAME',
+  API_KEY: 'API_KEY',
+  API_SECRET: 'API_SECRET',
+};

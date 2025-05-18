@@ -3,7 +3,6 @@ import { randomBytes } from 'crypto';
 import createHttpError from 'http-errors';
 
 import { RANDOM_BYTES, THIRTY_DAYS, ONE_DAY } from '../constants/index.js';
-
 import UserCollection from '../db/models/user.js';
 import { SessionCollection } from '../db/models/sessions.js';
 
@@ -71,10 +70,13 @@ export const getUserById = async (userId) => {
   return await UserCollection.findById(userId);
 };
 
-export const updateUser = async (userId, payload) => {
-  const updatedUser = await UserCollection.findByIdAndUpdate(userId, payload, {
-    new: true,
+export const updateUser = async (filter, payload, options = {}) => {
+  const rawResult = await UserCollection.findOneAndUpdate(filter, payload, {
+    includeResultMetadata: true,
+    ...options,
   });
 
-  return updatedUser ? { user: updatedUser, isNew: false } : null;
+  if (!rawResult || !rawResult.value) return null;
+
+  return rawResult.value;
 };

@@ -1,25 +1,43 @@
 import { Router } from 'express';
-
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
-
+import { authenticate } from '../middleware/authenticate.js';
 import {
   getTransactionsController,
   createTransactionController,
   updateTransactionController,
-  deleteTransactionController
+  deleteTransactionController,
 } from '../controllers/transactions.js';
 import { validateBody } from '../utils/validateBody.js';
-import { transactionSchema, updateTransactionSchema } from '../validation/transactions.js';
+import {
+  createTransactionSchema,
+  updateTransactionSchema,
+} from '../validation/transactions.js';
 
-const router = Router();
+const transactionRouter = Router();
 
-router.get('/summary', validateBody(updateTransactionSchema), ctrlWrapper(getTransactionsController));
+transactionRouter.use(ctrlWrapper(authenticate));
 
-router.post('/create', validateBody(transactionSchema), ctrlWrapper(createTransactionController));
+transactionRouter.get(
+  '/summary',
+  validateBody(updateTransactionSchema),
+  ctrlWrapper(getTransactionsController),
+);
 
-router.put('/update/:id', validateBody(updateTransactionSchema), ctrlWrapper(updateTransactionController));
+transactionRouter.post(
+  '/create',
+  validateBody(createTransactionSchema),
+  ctrlWrapper(createTransactionController),
+);
 
-router.delete('/delete/:id', ctrlWrapper(deleteTransactionController));
+transactionRouter.put(
+  '/update/:id',
+  validateBody(updateTransactionSchema),
+  ctrlWrapper(updateTransactionController),
+);
 
+transactionRouter.delete(
+  '/delete/:id',
+  ctrlWrapper(deleteTransactionController),
+);
 
-export default router;
+export default transactionRouter;

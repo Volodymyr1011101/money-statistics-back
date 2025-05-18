@@ -1,10 +1,13 @@
 import express from 'express';
 
-import authenticate from '../middleware/authenticate.js';
-import { getCategories } from '../controllers/categories.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { ctrlWrapper } from '../utils/ctrlWrapper.js';
+import { getCategoriesController } from '../controllers/categories.js';
 
-const router = express.Router();
+const categoriesRouter = express.Router();
 
-router.get('/categories', authenticate, getCategories);
+categoriesRouter.use(ctrlWrapper(authenticate));
 
-export default router;
+categoriesRouter.get('/', ctrlWrapper(getCategoriesController));
+
+export default categoriesRouter;
