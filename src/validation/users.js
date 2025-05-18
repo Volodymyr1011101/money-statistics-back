@@ -1,12 +1,14 @@
 import Joi from 'joi';
 
+import { emailRegex } from '../constants/index.js';
+
 export const userSchema = Joi.object({
   name: Joi.string().trim().min(2).max(32).required().messages({
     'string.empty': 'Name is required',
     'string.min': 'Name must be at least 2 characters long',
     'string.max': 'Name must be at most 32 characters long',
   }),
-  email: Joi.string().email().trim().lowercase().max(64).required().messages({
+  email: Joi.string().max(64).regex(emailRegex).required().messages({
     'string.email': 'Invalid email format',
     'string.max': 'Email must be at most 64 characters long',
     'string.empty': 'Email is required',
@@ -26,13 +28,6 @@ export const userSchema = Joi.object({
 });
 
 export const updateUserSchema = Joi.object({
-  name: Joi.string().trim().min(3).max(20).optional(),
-  email: Joi.string().email().trim().lowercase().optional(),
-  weight: Joi.number().optional(),
-  activityLevel: Joi.number().optional(),
-  gender: Joi.string().valid('male', 'female').optional(),
-  dailyRequirement: Joi.number().integer().optional(),
+  name: Joi.string().min(2).max(32),
+  email: Joi.string().max(64).regex(emailRegex),
 });
-
-
-

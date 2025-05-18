@@ -2,7 +2,7 @@ import createHttpError from 'http-errors';
 
 import { getCategoriesByType } from '../services/categories.js';
 
-export const getCategories = async (req, res) => {
+export const getCategoriesController = async (req, res) => {
   const { type } = req.query;
   const { _id: userId } = req.user;
 

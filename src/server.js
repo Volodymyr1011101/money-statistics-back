@@ -2,7 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import router from './routers/index.js';
+
+import authRouter from './routers/auth.js';
+import categoriesRouter from './routers/categories.js';
+import userRouter from './routers/user.js';
+import transactionRouter from './routers/transactions.js';
 
 import { getEnvVariable } from './utils/getEnvVariable.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
@@ -21,7 +25,12 @@ export const startServer = () => {
       message: 'Pong!',
     });
   });
-  app.use(router);
+
+  app.use('/auth', authRouter);
+  app.use('/categories', categoriesRouter);
+  app.use('transactions/', transactionRouter);
+  app.use('/user', userRouter);
+
   app.use(notFoundHandler);
 
   app.use(errorHandler);

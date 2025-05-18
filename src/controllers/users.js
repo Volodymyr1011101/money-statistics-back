@@ -6,9 +6,11 @@ import {
   refreshUsersSession,
   registerUser,
   getUserById,
+  updateUser,
 } from '../services/users.js';
 
 import { COOKIES, HTTP_STATUSES, THIRTY_DAYS } from '../constants/index.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
@@ -82,12 +84,51 @@ export const getUserByIdController = async (req, res, next) => {
   const user = await getUserById(userId);
 
   if (!user) {
-    return next(createHttpError.NotFound('Contact not found'));
+    return next(createHttpError.NotFound('User not found'));
   }
 
   res.status(HTTP_STATUSES.OK).json({
     status: HTTP_STATUSES.OK,
     message: `Successfully found contact with id ${userId}!`,
+    data: user,
+  });
+};
+
+export const updateUserController = async (req, res) => {
+  const { _id: userId } = req.user;
+
+  const user = await updateUser({ _id: userId }, { ...req.body });
+
+  if (!user) {
+    return next(createHttpError.NotFound('User not found'));
+  }
+
+  res.status(HTTP_STATUSES.OK).json({
+    status: HTTP_STATUSES.OK,
+    message: 'Successfully patched a user!',
+    data: user,
+  });
+};
+
+export const updateUserAvatarController = async (req, res) => {
+  const { _id: userId } = req.user;
+  const avatarFile = req.file;
+
+  let avatar = null;
+
+  if (avatarFile) {
+    avatar = await saveFileToCloudinary(avatarFile);
+  }
+
+  const user = await updateUser({ _id: userId }, { avatar });
+
+  if (!user) {
+    return next(createHttpError.NotFound('User not found'));
+  }
+
+  res.status(HTTP_STATUSES.OK).json({
+    status: HTTP_STATUSES.OK,
+    message: 'Successfully updated avatar of the user!',
     data: user,
   });
 };
