@@ -14,17 +14,11 @@ import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
-    const {_id, email, balance, avatar, name} = user;
+
   res.status(HTTP_STATUSES.CREATED).json({
     status: HTTP_STATUSES.CREATED,
     message: 'Successfully registered a user!',
-    data: {
-        _id,
-        name,
-        email,
-        balance,
-        avatar,
-    },
+    data: user,
   });
 };
 
@@ -92,11 +86,11 @@ export const getUserByIdController = async (req, res, next) => {
   if (!user) {
     return next(createHttpError.NotFound('User not found'));
   }
-    const {_id, email, balance, avatar, name} = user;
+
   res.status(HTTP_STATUSES.OK).json({
     status: HTTP_STATUSES.OK,
     message: `Successfully found contact with id ${userId}!`,
-    data: {_id, email, balance, avatar, name},
+    data: user,
   });
 };
 
@@ -136,5 +130,15 @@ export const updateUserAvatarController = async (req, res) => {
     status: HTTP_STATUSES.OK,
     message: 'Successfully updated avatar of the user!',
     data: user,
+  });
+};
+
+export const resetPasswordController = async (req, res) => {
+  await resetPassword(req.body);
+
+  res.json({
+    status: HTTP_STATUSES.OK,
+    message: 'Password has been successfully reset.',
+    data: {},
   });
 };

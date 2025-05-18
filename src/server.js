@@ -25,9 +25,10 @@ export const startServer = () => {
       message: 'Pong!',
     });
   });
+
   app.use('/auth', authRouter);
   app.use('/categories', categoriesRouter);
-  app.use('/transactions', transactionRouter);
+  app.use('transactions/', transactionRouter);
   app.use('/user', userRouter);
 
   app.use(notFoundHandler);

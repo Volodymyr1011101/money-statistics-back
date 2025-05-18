@@ -2,21 +2,20 @@ import TransactionCollection from '../db/models/transaction.js';
 
 export const createTransactionController = async (req, res) => {
   try {
-    const { type, category, sum, date, comment, userId } = req.body;
+    const { type, category, amount, date, comment } = req.body;
 
-    if (!type || !category || !sum || !date) {
+    if (!type || !category || !amount || !date) {
       return res.status(400).json({ message: 'Обов’язкові поля відсутні' });
     }
 
-    if (sum <= 0 || sum > 1000000) {
+    if (amount <= 0 || amount > 1000000) {
       return res.status(400).json({ message: 'Сума має бути більше 0 та менше 1000000' });
     }
 
     const newTransaction = new TransactionCollection({
-        userId,
       type,
       category,
-        sum,
+      amount,
       date,
       comment,
     });

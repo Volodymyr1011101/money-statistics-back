@@ -18,10 +18,8 @@ export const createTransactionSchema = Joi.object({
       'Entertainment'
     )
     .required(),
-  type: Joi.string().valid('income', 'expense').required(),
+  transactionType: Joi.string().valid('income', 'expense').required(),
   date: Joi.date().iso().required(),
-    comment: Joi.string().allow('').required(),
-    userId: Joi.string().required(),
 });
 
 export const updateTransactionSchema = Joi.object({
