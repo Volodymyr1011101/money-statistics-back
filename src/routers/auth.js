@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middleware/validateBody.js';
-import { userSchema } from '../validation/users.js';
+import {loginUserSchema, userSchema} from '../validation/users.js';
 import {
   loginUserController,
   logoutUserController,
@@ -20,7 +20,7 @@ authRouter.post(
 
 authRouter.post(
   '/login',
-  validateBody(userSchema),
+  validateBody(loginUserSchema),
   ctrlWrapper(loginUserController),
 );
 
