@@ -1,0 +1,53 @@
+summary: Get current user information
+operationId: getCurrentUser
+tags:
+  - User
+description: Returns the authenticated user's profile details.
+security:
+  - bearerAuth: []
+responses:
+  '200':
+    description: Successfully retrieved user information
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: Successfully found contact with id 6650457a4e3fa639236d2461!
+            data:
+              type: object
+              properties:
+                _id:
+                  type: string
+                  example: 6650457a4e3fa639236d2461
+                email:
+                  type: string
+                  example: user@example.com
+                balance:
+                  type: number
+                  example: 1250.50
+                avatar:
+                  type: string
+                  example: https://example.com/avatar.jpg
+                name:
+                  type: string
+                  example: John Doe
+  '401':
+    $ref: '../../components/responses/401.yaml'
+  '404':
+    $ref: '../../components/responses/404.yaml'
+  '500':
+    description: Internal server error
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: An unexpected error occurred

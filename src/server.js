@@ -11,6 +11,7 @@ import transactionRouter from './routers/transactions.js';
 import { getEnvVariable } from './utils/getEnvVariable.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import {swaggerDocs} from "./middleware/swaggerDocs.js";
 
 dotenv.config();
 export const startServer = () => {
@@ -29,7 +30,7 @@ export const startServer = () => {
   app.use('/categories', categoriesRouter);
   app.use('/transactions', transactionRouter);
   app.use('/user', userRouter);
-
+  app.use('/api-docs', swaggerDocs());
   app.use(notFoundHandler);
 
   app.use(errorHandler);

@@ -1,0 +1,41 @@
+tags:
+  - Categories
+summary: Get categories by type
+operationId: getCategories
+description: Retrieve user categories filtered by type (income or expense)
+security:
+  - bearerAuth: []
+parameters:
+  - in: query
+    name: type
+    required: true
+    schema:
+      type: string
+      enum: [income, expense]
+    description: Category type to filter by (must be "income" or "expense")
+responses:
+  '200':
+    description: Successfully fetched categories
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: income categories fetched
+            data:
+              type: array
+              items:
+                $ref: '../../components/schemas/categories.yaml'
+  '400':
+    $ref: '../../components/responses/400.yaml'
+  '401':
+    $ref: '../../components/responses/401.yaml'

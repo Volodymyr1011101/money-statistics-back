@@ -1,0 +1,28 @@
+type: object
+properties:
+  _id:
+    type: string
+    example: '66504f7123abf9475f6b1123'
+  userId:
+    type: string
+    example: '663a4f21c3c98a76c51d81d7'
+  type:
+    type: string
+    enum: [income, expense]
+    example: expense
+  category:
+    type: string
+    example: Car
+  sum:
+    type: number
+    example: 150
+  date:
+    type: string
+    format: date-time
+    example: '2025-05-21T00:00:00.000Z'
+  comment:
+    type: string
+    example: 'Oil change'
+  __v:
+    type: integer
+    example: 0

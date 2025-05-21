@@ -1,0 +1,34 @@
+summary: Delete a transaction
+operationId: deleteTransaction
+tags:
+  - Transactions
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: Transaction ID
+    schema:
+      type: string
+responses:
+  '200':
+    description: Transaction deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Transaction deleted
+  '404':
+    $ref: ../../../../components/responses/404.yaml
+  '500':
+    description: Internal server error
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: An unexpected error occurred

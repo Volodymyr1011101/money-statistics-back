@@ -1,0 +1,18 @@
+type: object
+required:
+  - userId
+  - accessToken
+  - refreshToken
+  - accessTokenValidUntil
+  - refreshTokenValidUntil
+properties:
+  userId:
+    type: string
+  accessToken:
+    type: string
+  refreshToken:
+    type: string
+  accessTokenValidUntil:
+    type: date
+  refreshTokenValidUntil:
+    type: date
