@@ -1,0 +1,32 @@
+type: object
+properties:
+  sum:
+    type: number
+    minimum: 0
+    maximum: 1000000
+    example: 150
+  category:
+    type: string
+    enum:
+      - Main expenses
+      - Products
+      - Car
+      - Self care
+      - Child care
+      - Household products
+      - Education
+      - Leisure
+      - Other expenses
+      - Entertainment
+    example: Education
+  transactionType:
+    type: string
+    enum: [income, expense]
+    example: expense
+  date:
+    type: string
+    format: date
+    example: '2025-05-20'
+  comment:
+    type: string
+    example: 'Updated comment'

@@ -1,0 +1,21 @@
+type: object
+required:
+  - _id
+  - name
+  - type
+  - userId
+properties:
+  _id:
+    type: string
+    example: '664b1d8f4e8238a7b7f91d22'
+  name:
+    description: Name.
+    type: string
+    example: 'John Doe'
+  type:
+    type: string
+    enum: ['income', 'expense']
+    description: Must choose income or expenses.
+  userId:
+    type: string
+    example: '664a9d2f77e9a8d2b5a2c8f4'

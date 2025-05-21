@@ -1,0 +1,44 @@
+type: object
+required:
+  - userId
+  - type
+  - category
+  - sum
+  - date
+  - comment
+properties:
+  userId:
+    type: string
+    example: '663a4f21c3c98a76c51d81d7'
+  type:
+    type: string
+    enum: [income, expense]
+    example: income
+  category:
+    type: string
+    minLength: 3
+    maxLength: 30
+    enum:
+      - Main expenses
+      - Products
+      - Car
+      - Self care
+      - Child care
+      - Household products
+      - Education
+      - Leisure
+      - Other expenses
+      - Entertainment
+    example: Products
+  sum:
+    type: number
+    minimum: 0
+    maximum: 1000000
+    example: 200
+  date:
+    type: string
+    format: date
+    example: '2025-05-21'
+  comment:
+    type: string
+    example: 'Bought groceries'

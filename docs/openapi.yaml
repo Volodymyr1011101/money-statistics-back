@@ -6,106 +6,192 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   description: This is a documentation of Spendy app
+security:
+  - bearerAuth: []
 tags:
   - name: Transactions
     description: Operations with transactions.
 servers:
   - url: http://localhost:3000
-
 paths:
-  /summary:
+  /auth/register:
+    post:
+      $ref: '../swagger/paths/auth/register/post.yaml'
+  /auth/login:
+    post:
+      $ref: '../swagger/paths/auth/login/post.yaml'
+  /auth/refresh:
+    post:
+      $ref: '../swagger/paths/auth/refresh/post.yaml'
+  /auth/logout:
+    post:
+      $ref: '../swagger/paths/auth/logout/post.yaml'
+
+  /categories:
     get:
-      tags:
-        - Transactions
-      summary: Get stats for a given month
-      operationId: getMonthlyStats
-      description: >
-        Returns aggregated financial statistics (income and expenses) by categories 
-        and totals for the given month and year.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: period
-          in: query
-          required: true
-          schema:
-            type: string
-            pattern: '^\d{4}-(0[1-9]|1[0-2])$'
-            example: "2024-11"
-          description: Period in YYYY-MM format.
-      responses:
-        "200":
-          description: Aggregated statistics for the specified period.
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - status
-                  - data
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  data:
-                    type: object
-                    required:
-                      - totalIncome
-                      - totalExpense
-                      - categories
-                    properties:
-                      totalIncome:
-                        type: number
-                        format: float
-                        example: 4200.00
-                      totalExpense:
-                        type: number
-                        format: float
-                        example: 3150.50
-                      categories:
-                        type: array
-                        description: Aggregated values by category.
-                        items:
-                          type: object
-                          required:
-                            - type
-                            - category
-                            - total
-                          properties:
-                            type:
-                              type: string
-                              enum: [income, expense]
-                              example: expense
-                            category:
-                              type: string
-                              enum:
-                                [
-                                  Main expenses,
-                                  Products,
-                                  Car,
-                                  Self care,
-                                  Child care,
-                                  Household products,
-                                  Education,
-                                  Leisure,
-                                  Other expenses,
-                                  Entertainment,
-                                ]
-                              example: Main expenses
-                            total:
-                              type: number
-                              format: float
-                              example: 520.75
-        "400":
-          description: Bad request (e.g., invalid period format)
-          content:
-            application/json:
-              schema:
-                $ref: ../swagger/components/responses/400.yaml
-        "401":
-          $ref: ../swagger/components/responses/401.yaml
+      $ref: '../swagger/paths/categories/get.yaml'
+
+  /transactions/summary:
+    get:
+      $ref: '../swagger/paths/transaction/summary/get.yaml'
+  /transactions/create:
+    post:
+      $ref: '../swagger/paths/transaction/create/post.yaml'
+  /transactions/update/{id}:
+    put:
+      $ref: '../swagger/paths/transaction/{id}/update/put.yaml'
+  /transactions/delete/{id}:
+    delete:
+      $ref: '../swagger/paths/transaction/{id}/delete/delete.yaml'
+
+  /user:
+    get:
+      $ref: '../swagger/paths/user/get.yaml'
+    patch:
+      $ref: '../swagger/paths/user/patch.yaml'
+  /user/avatar:
+    patch:
+      $ref: '../swagger/paths/user/avatar/patch.yaml'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+
+  # schemas:
+  #   UserRegister:
+  #     $ref: '../swagger/components/schemas/UserRegister.yaml'
+  #   UserLogin:
+  #     $ref: '../swagger/components/schemas/UserLogin.yaml'
+  #   Category:
+  #     $ref: '../swagger/components/schemas/Category.yaml'
+  #   TransactionCreate:
+  #     $ref: '../swagger/components/schemas/TransactionCreate.yaml'
+  #   TransactionUpdate:
+  #     $ref: '../swagger/components/schemas/TransactionUpdate.yaml'
+  #   UserUpdate:
+  #     $ref: '../swagger/components/schemas/UserUpdate.yaml'
+
+  # responses:
+  #   BadRequest:
+  #     $ref: '../swagger/components/responses/400.yaml'
+  #   Unauthorized:
+  #     $ref: '../swagger/components/responses/401.yaml'
+  #   NotFound:
+  #     $ref: '../swagger/components/responses/404.yaml'
+# openapi: 3.1.0
+# info:
+#   version: 1.0.0
+#   title: Spendy app
+#   license:
+#     name: Apache 2.0
+#     url: http://www.apache.org/licenses/LICENSE-2.0.html
+#   description: This is a documentation of Spendy app
+# tags:
+#   - name: Transactions
+#     description: Operations with transactions.
+# servers:
+#   - url: http://localhost:3000
+
+# paths:
+#   /summary:
+#     get:
+#       tags:
+#         - Transactions
+#       summary: Get stats for a given month
+#       operationId: getMonthlyStats
+#       description: >
+#         Returns aggregated financial statistics (income and expenses) by categories
+#         and totals for the given month and year.
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: period
+#           in: query
+#           required: true
+#           schema:
+#             type: string
+#             pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+#             example: "2024-11"
+#           description: Period in YYYY-MM format.
+#       responses:
+#         "200":
+#           description: Aggregated statistics for the specified period.
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 required:
+#                   - status
+#                   - data
+#                 properties:
+#                   status:
+#                     type: string
+#                     example: success
+#                   data:
+#                     type: object
+#                     required:
+#                       - totalIncome
+#                       - totalExpense
+#                       - categories
+#                     properties:
+#                       totalIncome:
+#                         type: number
+#                         format: float
+#                         example: 4200.00
+#                       totalExpense:
+#                         type: number
+#                         format: float
+#                         example: 3150.50
+#                       categories:
+#                         type: array
+#                         description: Aggregated values by category.
+#                         items:
+#                           type: object
+#                           required:
+#                             - type
+#                             - category
+#                             - total
+#                           properties:
+#                             type:
+#                               type: string
+#                               enum: [income, expense]
+#                               example: expense
+#                             category:
+#                               type: string
+#                               enum:
+#                                 [
+#                                   Main expenses,
+#                                   Products,
+#                                   Car,
+#                                   Self care,
+#                                   Child care,
+#                                   Household products,
+#                                   Education,
+#                                   Leisure,
+#                                   Other expenses,
+#                                   Entertainment,
+#                                 ]
+#                               example: Main expenses
+#                             total:
+#                               type: number
+#                               format: float
+#                               example: 520.75
+#         "400":
+#           description: Bad request (e.g., invalid period format)
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: ../swagger/components/responses/400.yaml
+#         "401":
+#           $ref: ../swagger/components/responses/401.yaml
+# components:
+#   securitySchemes:
+#     bearerAuth:
+#       type: http
+#       scheme: bearer

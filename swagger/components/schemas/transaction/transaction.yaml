@@ -1,0 +1,38 @@
+type: object
+required:
+  - period
+  - stats
+properties:
+  period:
+    type: string
+    example: '2025-05'
+  stats:
+    type: array
+    items:
+      type: object
+      required:
+        - type
+        - categories
+        - total
+      properties:
+        type:
+          type: string
+          enum: [income, expense]
+          example: income
+        total:
+          type: number
+          example: 540.5
+        categories:
+          type: array
+          items:
+            type: object
+            required:
+              - category
+              - total
+            properties:
+              category:
+                type: string
+                example: Products
+              total:
+                type: number
+                example: 120.75
