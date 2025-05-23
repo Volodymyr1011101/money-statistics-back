@@ -1,7 +1,7 @@
 summary: Update current user
 operationId: updateUser
 tags:
-  - User
+  - Users
 description: Updates the current authenticated user's name and/or email.
 security:
   - bearerAuth: []

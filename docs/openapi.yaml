@@ -31,25 +31,25 @@ paths:
     get:
       $ref: '../swagger/paths/categories/get.yaml'
 
-  /transactions/summary:
+  /transactions:
     get:
       $ref: '../swagger/paths/transaction/summary/get.yaml'
-  /transactions/create:
     post:
       $ref: '../swagger/paths/transaction/create/post.yaml'
-  /transactions/update/{id}:
+
+  /transactions/{id}:
     put:
       $ref: '../swagger/paths/transaction/{id}/update/put.yaml'
-  /transactions/delete/{id}:
     delete:
       $ref: '../swagger/paths/transaction/{id}/delete/delete.yaml'
 
-  /user:
+  /users:
     get:
       $ref: '../swagger/paths/user/get.yaml'
     patch:
       $ref: '../swagger/paths/user/patch.yaml'
-  /user/avatar:
+
+  /users/avatar:
     patch:
       $ref: '../swagger/paths/user/avatar/patch.yaml'
 

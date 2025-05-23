@@ -1,7 +1,7 @@
 summary: Update user avatar
 operationId: updateUserAvatar
 tags:
-  - User
+  - Users
 description: Uploads and updates the user's avatar image. Accepts multipart/form-data.
 security:
   - bearerAuth: []
