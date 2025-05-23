@@ -12,9 +12,6 @@
   "servers": [
     {
       "url": "http://localhost:3000"
-    },
-    {
-      "url": "https://money-statistics-back-1.onrender.com"
     }
   ],
   "security": [
@@ -32,19 +29,15 @@
     "/auth/register": {
       "post": {
         "tags": [
-          "auth"
+          "Auth"
         ],
         "summary": "Register user",
-        "operationId": "getUser",
-        "description": "Create a user with payload",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "operationId": "registerUser",
+        "description": "Register a new user using name, email, and password.",
         "requestBody": {
+          "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "required": [
@@ -61,10 +54,11 @@
                   "email": {
                     "description": "User's email",
                     "type": "string",
+                    "format": "email",
                     "example": "john@example.com"
                   },
                   "password": {
-                    "description": "User's password",
+                    "description": "Password with at least one uppercase letter, one lowercase letter, and one digit",
                     "type": "string",
                     "example": "Password123"
                   }
@@ -75,7 +69,7 @@
         },
         "responses": {
           "201": {
-            "description": "Creates a student",
+            "description": "Successfully registered a user",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,15 +90,59 @@
                     },
                     "data": {
                       "type": "object",
-                      "$ref": "#/components/schemas/user"
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "664b83dd3f77f3b7a54f9140"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "balance": {
+                          "type": "number",
+                          "example": 0
+                        },
+                        "avatar": {
+                          "type": "string",
+                          "example": null
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
           "401": {
             "$ref": "#/components/responses/401"
+          },
+          "409": {
+            "description": "Email already in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 409
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email in use"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -112,19 +150,15 @@
     "/auth/login": {
       "post": {
         "tags": [
-          "auth"
+          "Auth"
         ],
         "summary": "Login user",
         "operationId": "loginUser",
-        "description": "login a user with payload",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Log in an existing user with email and password",
         "requestBody": {
+          "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "required": [
@@ -133,17 +167,18 @@
                 ],
                 "properties": {
                   "email": {
-                    "description": "User's email",
                     "type": "string",
-                    "example": "John Doe",
-                    "maxLength": 64
+                    "format": "email",
+                    "maxLength": 64,
+                    "example": "john@example.com",
+                    "description": "User's email"
                   },
                   "password": {
-                    "description": "User's password",
                     "type": "string",
-                    "example": "Password123",
                     "minLength": 8,
-                    "maxLength": 64
+                    "maxLength": 64,
+                    "example": "Password123",
+                    "description": "User's password"
                   }
                 }
               }
@@ -151,8 +186,8 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "User login",
+          "200": {
+            "description": "Successfully logged in a user",
             "content": {
               "application/json": {
                 "schema": {
@@ -165,7 +200,7 @@
                   "properties": {
                     "status": {
                       "type": "integer",
-                      "example": 201
+                      "example": 200
                     },
                     "message": {
                       "type": "string",
@@ -173,15 +208,43 @@
                     },
                     "data": {
                       "type": "object",
-                      "$ref": "#/components/schemas/user"
+                      "properties": {
+                        "accessToken": {
+                          "type": "string",
+                          "example": "a2f3eacb1ef1ac72341963cdefa1c8f3b7d1f6b2d9c1ea1efb"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
           "401": {
             "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User not found."
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -193,7 +256,7 @@
         ],
         "summary": "Refresh session",
         "operationId": "refreshSession",
-        "description": "Refresh user session using cookies: sessionId and refreshToken",
+        "description": "Refresh user session using cookies `sessionId` and `refreshToken`",
         "security": [
           {
             "cookieAuth": []
@@ -338,7 +401,7 @@
         }
       }
     },
-    "/transactions/summary": {
+    "/transactions": {
       "get": {
         "tags": [
           "Transactions"
@@ -424,9 +487,7 @@
             "$ref": "#/components/responses/401"
           }
         }
-      }
-    },
-    "/transactions/create": {
+      },
       "post": {
         "tags": [
           "Transactions"
@@ -472,7 +533,7 @@
         }
       }
     },
-    "/transactions/update/{id}": {
+    "/transactions/{id}": {
       "put": {
         "summary": "Update a transaction",
         "operationId": "updateTransaction",
@@ -531,9 +592,7 @@
             "description": "Internal server error"
           }
         }
-      }
-    },
-    "/transactions/delete/{id}": {
+      },
       "delete": {
         "summary": "Delete a transaction",
         "operationId": "deleteTransaction",
@@ -590,12 +649,12 @@
         }
       }
     },
-    "/user": {
+    "/users": {
       "get": {
         "summary": "Get current user information",
         "operationId": "getCurrentUser",
         "tags": [
-          "User"
+          "Users"
         ],
         "description": "Returns the authenticated user's profile details.",
         "security": [
@@ -677,7 +736,7 @@
         "summary": "Update current user",
         "operationId": "updateUser",
         "tags": [
-          "User"
+          "Users"
         ],
         "description": "Updates the current authenticated user's name and/or email.",
         "security": [
@@ -784,12 +843,12 @@
         }
       }
     },
-    "/user/avatar": {
+    "/users/avatar": {
       "patch": {
         "summary": "Update user avatar",
         "operationId": "updateUserAvatar",
         "tags": [
-          "User"
+          "Users"
         ],
         "description": "Uploads and updates the user's avatar image. Accepts multipart/form-data.",
         "security": [
@@ -915,36 +974,117 @@
         "name": "refreshToken"
       }
     },
-    "schemas": {
-      "user": {
-        "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 32,
-            "example": "John Doe"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "maxLength": 64,
-            "example": "john@example.com"
-          },
-          "password": {
-            "type": "string",
-            "minLength": 8,
-            "maxLength": 64,
-            "description": "Password must contain at least one uppercase letter, one lowercase letter, and one digit.",
-            "example": "Password123"
+    "responses": {
+      "400": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "message",
+                "data"
+              ],
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 400
+                },
+                "message": {
+                  "type": "string",
+                  "example": "BadRequest"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid period format. Expected YYYY-MM."
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
+      "401": {
+        "description": "Unauthorized error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "message",
+                "data"
+              ],
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 401
+                },
+                "message": {
+                  "type": "string",
+                  "example": "UnauthorizedError"
+                },
+                "data": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access token expired"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "NotFoundError",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "message",
+                "data"
+              ],
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 404
+                },
+                "message": {
+                  "type": "string",
+                  "example": "NotFoundError"
+                },
+                "data": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Route not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
       "categories": {
         "type": "object",
         "required": [
@@ -1176,116 +1316,6 @@
           "comment": {
             "type": "string",
             "example": "Updated comment"
-          }
-        }
-      }
-    },
-    "responses": {
-      "400": {
-        "description": "Bad request",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": [
-                "status",
-                "message",
-                "data"
-              ],
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 400
-                },
-                "message": {
-                  "type": "string",
-                  "example": "BadRequest"
-                },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid period format. Expected YYYY-MM."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "401": {
-        "description": "Unauthorized error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": [
-                "status",
-                "message",
-                "data"
-              ],
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 401
-                },
-                "message": {
-                  "type": "string",
-                  "example": "UnauthorizedError"
-                },
-                "data": {
-                  "type": "object",
-                  "required": [
-                    "message"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Access token expired"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "NotFoundError",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": [
-                "status",
-                "message",
-                "data"
-              ],
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 404
-                },
-                "message": {
-                  "type": "string",
-                  "example": "NotFoundError"
-                },
-                "data": {
-                  "type": "object",
-                  "required": [
-                    "message"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Route not found"
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
