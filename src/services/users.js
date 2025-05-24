@@ -33,13 +33,23 @@ export const loginUser = async (payload) => {
   const user = await UserCollection.findOne({ email: payload.email });
   if (!user) throw createHttpError.NotFound('User not found.');
 
+  const { name, email, balance, _id, avatar} = user;
   const isEqual = await bcrypt.compare(payload.password, user.password);
   if (!isEqual) throw createHttpError.Unauthorized('Unauthorized user.');
 
   await SessionCollection.deleteMany({ userId: user._id });
   const newSession = createSession();
 
-  return await SessionCollection.create({ userId: user._id, ...newSession });
+  const session = await SessionCollection.create({ userId: user._id, ...newSession });
+
+  return {
+      _id,
+      name,
+      email,
+      balance,
+      avatar,
+      accessToken: session.accessToken,
+  };
 };
 
 export const logoutUser = async (sessionId) => {
