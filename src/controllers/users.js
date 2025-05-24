@@ -45,14 +45,26 @@ const setupSession = (res, session) => {
 
 export const loginUserController = async (req, res) => {
   const session = await loginUser(req.body);
-
+    const {
+        _id,
+        name,
+        email,
+        balance,
+        avatar,
+        accessToken
+    } = session;
   setupSession(res, session);
-
+  console.log({accessToken});
   res.json({
     status: HTTP_STATUSES.OK,
     message: 'Successfully logged in a user!',
     data: {
-      accessToken: session.accessToken,
+        _id,
+        name,
+        email,
+        balance,
+        avatar,
+        accessToken
     },
   });
 };
