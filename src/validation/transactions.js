@@ -15,13 +15,14 @@ export const createTransactionSchema = Joi.object({
       'Education',
       'Leisure',
       'Other expenses',
-      'Entertainment'
+      'Entertainment',
+      'Incomes',
     )
     .required(),
   type: Joi.string().valid('income', 'expense').required(),
   date: Joi.date().iso().required(),
-    comment: Joi.string().allow('').required(),
-    userId: Joi.string().required(),
+  comment: Joi.string().allow('').required(),
+  userId: Joi.string().required(),
 });
 
 export const updateTransactionSchema = Joi.object({
@@ -39,7 +40,8 @@ export const updateTransactionSchema = Joi.object({
       'Education',
       'Leisure',
       'Other expenses',
-      'Entertainment'
+      'Entertainment',
+      'Incomes',
     ),
   transactionType: Joi.string().valid('income', 'expense'),
   date: Joi.date(),

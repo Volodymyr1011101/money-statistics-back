@@ -9,14 +9,16 @@ export const createTransactionController = async (req, res) => {
     }
 
     if (sum <= 0 || sum > 1000000) {
-      return res.status(400).json({ message: 'Сума має бути більше 0 та менше 1000000' });
+      return res
+        .status(400)
+        .json({ message: 'Сума має бути більше 0 та менше 1000000' });
     }
 
     const newTransaction = new TransactionCollection({
-        userId,
+      userId,
       type,
       category,
-        sum,
+      sum,
       date,
       comment,
     });
@@ -30,10 +32,13 @@ export const createTransactionController = async (req, res) => {
 
 export const getTransactionsController = async (req, res) => {
   try {
-    const { period, userId } = req.query;
+    const { period } = req.query;
+    const userId = req.user._id;
 
     if (!period || !/^\d{4}-\d{2}$/.test(period)) {
-      return res.status(400).json({ message: 'Invalid period format. Use YYYY-MM' });
+      return res
+        .status(400)
+        .json({ message: 'Invalid period format. Use YYYY-MM' });
     }
 
     const [year, month] = period.split('-').map(Number);
@@ -50,7 +55,7 @@ export const getTransactionsController = async (req, res) => {
       {
         $group: {
           _id: { type: '$type', category: '$category' },
-          totalAmount: { $sum: '$amount' },
+          totalAmount: { $sum: '$sum' },
         },
       },
       {
@@ -87,13 +92,15 @@ export const updateTransactionController = async (req, res) => {
     const { id } = req.params;
 
     if (amount && (amount <= 0 || amount > 1000000)) {
-      return res.status(400).json({ message: 'Сума має бути більше 0 та менше 1000000' });
+      return res
+        .status(400)
+        .json({ message: 'Сума має бути більше 0 та менше 1000000' });
     }
 
     const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
       id,
       { type, category, amount, date, comment },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedTransaction) {
@@ -109,7 +116,9 @@ export const updateTransactionController = async (req, res) => {
 export const deleteTransactionController = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedTransaction = await TransactionCollection.findByIdAndDelete(id);
+    const deletedTransaction = await TransactionCollection.findByIdAndDelete(
+      id,
+    );
 
     if (!deletedTransaction) {
       return res.status(404).json({ message: 'Транзакція не знайдена' });
