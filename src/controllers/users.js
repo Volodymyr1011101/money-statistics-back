@@ -14,17 +14,11 @@ import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
-    const {_id, email, balance, avatar, name} = user;
+    console.log(user);
   res.status(HTTP_STATUSES.CREATED).json({
     status: HTTP_STATUSES.CREATED,
     message: 'Successfully registered a user!',
-    data: {
-        _id,
-        name,
-        email,
-        balance,
-        avatar,
-    },
+    user,
   });
 };
 
