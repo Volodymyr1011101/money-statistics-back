@@ -11,10 +11,22 @@ export const registerUser = async (payload) => {
   if (user) throw createHttpError.Conflict('Email in use');
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
-  return await UserCollection.create({
+  const newUser = await UserCollection.create({
     ...payload,
     password: encryptedPassword,
   });
+
+  const newSession = createSession();
+
+  const session = new SessionCollection({userId: newUser._id, ...newSession});
+
+  return {
+      name: newUser.name,
+      email: newUser.email,
+      balance: newUser.balance,
+      avatar: newUser.avatar,
+      accessToken: session.accessToken
+  };
 };
 
 const createSession = () => {
