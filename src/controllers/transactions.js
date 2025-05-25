@@ -79,13 +79,13 @@ export const getTransactionsController = async (req, res) => {
             }, {})
         );
 
-        const totalResult = result.map((item, index) => {
+        result.map((item, index) => {
            item.color = colors[index];
         });
 
         const totalSum = result.reduce((sum, item) => sum + item.total, 0);
 
-        res.json({period, totalResult, total: totalSum});
+        res.json({period, result, total: totalSum});
     } catch (error) {
         res.status(500).json({message: error.message});
     }
