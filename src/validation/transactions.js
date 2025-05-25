@@ -43,7 +43,7 @@ export const updateTransactionSchema = Joi.object({
       'Entertainment',
       'Incomes',
     ),
-  transactionType: Joi.string().valid('income', 'expense'),
+  type: Joi.string().valid('income', 'expense'),
   comment: Joi.string().allow(''),
   date: Joi.date(),
 });

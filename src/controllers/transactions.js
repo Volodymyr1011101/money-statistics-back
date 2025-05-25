@@ -3,7 +3,7 @@ import {parsePaginationParams} from "../utils/parsePaginationParams.js";
 import {getAllTransactionsService} from "../services/transactions.js";
 import UserCollection from "../db/models/user.js";
 import {calculateBalance} from "../utils/balanceCalculate.js";
-import user from "../routers/user.js";
+import {colors} from "../constants/index.js";
 
 export const createTransactionController = async (req, res) => {
     try {
@@ -79,9 +79,13 @@ export const getTransactionsController = async (req, res) => {
             }, {})
         );
 
+        const totalResult = result.map((item, index) => {
+           item.color = colors[index];
+        });
+
         const totalSum = result.reduce((sum, item) => sum + item.total, 0);
 
-        res.json({period, result, total: totalSum});
+        res.json({period, totalResult, total: totalSum});
     } catch (error) {
         res.status(500).json({message: error.message});
     }
@@ -115,9 +119,13 @@ export const updateTransactionController = async (req, res) => {
         if (!updatedTransaction) {
             return res.status(404).json({message: 'Транзакція не знайдена'});
         }
-        const user = await UserCollection.findOne({_id: updatedTransaction.userId});
-        const newBalance = calculateBalance(user.balance, sum, type);
-        await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
+
+        if(sum) {
+            const user = await UserCollection.findOne({_id: updatedTransaction.userId});
+            const newBalance = calculateBalance(user.balance, sum, type);
+            await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
+
+        }
         res.status(200).json(updatedTransaction);
     } catch (error) {
         res.status(500).json({message: error.message});

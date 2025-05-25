@@ -93,3 +93,16 @@ export const CLOUDINARY = {
 };
 
 export const SWAGGER_PATH = path.resolve('docs', 'swagger.json');
+
+export const colors = [
+    '#DFAD3F',
+    '#FFD8D0',
+    '#FD9498',
+    '#C5BAFF',
+    '#6E78E8',
+    '#4A56E2',
+    '#81E1FF',
+    '#24CCA7',
+    '#00AD84',
+    '#ff9bd2',
+];
