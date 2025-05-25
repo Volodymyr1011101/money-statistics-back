@@ -1,14 +1,22 @@
 import TransactionCollection from '../db/models/transaction.js';
 import {parsePaginationParams} from "../utils/parsePaginationParams.js";
 import {getAllTransactionsService} from "../services/transactions.js";
+import UserCollection from "../db/models/user.js";
+import {calculateBalance} from "../utils/balanceCalculate.js";
 
 export const createTransactionController = async (req, res) => {
     try {
         const {type, category, sum, date, comment, userId} = req.body;
 
-        if (!type || !category || !sum || !date) {
+        if (!type || !category || !sum || !date || !userId) {
             return res.status(400).json({message: 'Обов’язкові поля відсутні'});
         }
+        const user = await UserCollection.findOne({_id: userId});
+        const balance = calculateBalance(user.balance, sum, type);
+
+        await UserCollection.findOneAndUpdate({_id: userId}, balance, {
+            new: true,
+        });
 
         if (sum <= 0 || sum > 1000000) {
             return res
@@ -80,9 +88,8 @@ export const getTransactionsController = async (req, res) => {
 
 export const getAllTransactionsController = async (req, res) => {
     const paginationParams = parsePaginationParams(req.query);
-    const {period} = req.query;
     const userId = req.user._id;
-    const result = await getAllTransactionsService({...paginationParams, userId, period });
+    const result = await getAllTransactionsService({...paginationParams, userId });
 
     res.status(200).json({message: 'Success received transactions' ,result});
 };
