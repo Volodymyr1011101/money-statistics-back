@@ -3,6 +3,7 @@ import {parsePaginationParams} from "../utils/parsePaginationParams.js";
 import {getAllTransactionsService} from "../services/transactions.js";
 import UserCollection from "../db/models/user.js";
 import {calculateBalance} from "../utils/balanceCalculate.js";
+import user from "../routers/user.js";
 
 export const createTransactionController = async (req, res) => {
     try {
@@ -96,10 +97,10 @@ export const getAllTransactionsController = async (req, res) => {
 
 export const updateTransactionController = async (req, res) => {
     try {
-        const {type, category, amount, date, comment} = req.body;
+        const {type, category, sum, date, comment} = req.body;
         const {id} = req.params;
 
-        if (amount && (amount <= 0 || amount > 1000000)) {
+        if (sum && (sum <= 0 || sum > 1000000)) {
             return res
                 .status(400)
                 .json({message: 'Сума має бути більше 0 та менше 1000000'});
@@ -107,14 +108,16 @@ export const updateTransactionController = async (req, res) => {
 
         const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
             id,
-            {type, category, amount, date, comment},
+            {type, category, sum, date, comment},
             {new: true},
         );
 
         if (!updatedTransaction) {
             return res.status(404).json({message: 'Транзакція не знайдена'});
         }
-
+        const user = await UserCollection.findOne({_id: updatedTransaction.userId});
+        const newBalance = calculateBalance(user.balance, sum, type);
+        await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
         res.status(200).json(updatedTransaction);
     } catch (error) {
         res.status(500).json({message: error.message});
