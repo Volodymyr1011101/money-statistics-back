@@ -1,131 +1,132 @@
 import TransactionCollection from '../db/models/transaction.js';
+import {parsePaginationParams} from "../utils/parsePaginationParams.js";
+import {getAllTransactionsService} from "../services/transactions.js";
 
 export const createTransactionController = async (req, res) => {
-  try {
-    const { type, category, sum, date, comment, userId } = req.body;
+    try {
+        const {type, category, sum, date, comment, userId} = req.body;
 
-    if (!type || !category || !sum || !date) {
-      return res.status(400).json({ message: 'Обов’язкові поля відсутні' });
+        if (!type || !category || !sum || !date) {
+            return res.status(400).json({message: 'Обов’язкові поля відсутні'});
+        }
+
+        if (sum <= 0 || sum > 1000000) {
+            return res
+                .status(400)
+                .json({message: 'Сума має бути більше 0 та менше 1000000'});
+        }
+
+        const newTransaction = new TransactionCollection({
+            userId,
+            type,
+            category,
+            sum,
+            date,
+            comment,
+        });
+
+        await newTransaction.save();
+        res.status(201).json(newTransaction);
+    } catch (error) {
+        res.status(500).json({message: error.message});
     }
-
-    if (sum <= 0 || sum > 1000000) {
-      return res
-        .status(400)
-        .json({ message: 'Сума має бути більше 0 та менше 1000000' });
-    }
-
-    const newTransaction = new TransactionCollection({
-      userId,
-      type,
-      category,
-      sum,
-      date,
-      comment,
-    });
-
-    await newTransaction.save();
-    res.status(201).json(newTransaction);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const getTransactionsController = async (req, res) => {
-  try {
-    const { period } = req.query;
-    const userId = req.user._id;
+    try {
+        const {period, type} = req.query;
+        const userId = req.user._id;
 
-    if (!period || !/^\d{4}-\d{2}$/.test(period)) {
-      return res
-        .status(400)
-        .json({ message: 'Invalid period format. Use YYYY-MM' });
-    }
+        if (!period || !/^\d{4}-\d{2}$/.test(period)) {
+            return res
+                .status(400)
+                .json({message: 'Invalid period format. Use YYYY-MM'});
+        }
 
-    const [year, month] = period.split('-').map(Number);
-    const start = new Date(Date.UTC(year, month - 1, 1));
-    const end = new Date(Date.UTC(year, month, 1));
+        const [year, month] = period.split('-').map(Number);
+        const start = new Date(Date.UTC(year, month - 1, 1));
+        const end = new Date(Date.UTC(year, month, 1));
 
-    const stats = await TransactionCollection.aggregate([
-      {
-        $match: {
-          userId,
-          date: { $gte: start, $lt: end },
-        },
-      },
-      {
-        $group: {
-          _id: { type: '$type', category: '$category' },
-          totalAmount: { $sum: '$sum' },
-        },
-      },
-      {
-        $group: {
-          _id: '$_id.type',
-          categories: {
-            $push: {
-              category: '$_id.category',
-              total: '$totalAmount',
+        const stats = await TransactionCollection.aggregate([
+            {
+                $match: {
+                    userId,
+                    date: {$gte: start, $lt: end},
+                    type
+                },
             },
-          },
-          total: { $sum: '$totalAmount' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          type: '$_id',
-          categories: 1,
-          total: 1,
-        },
-      },
-    ]);
+        ]);
 
-    res.json({ period, stats });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        const result = Object.values(
+            stats.reduce((acc, item) => {
+                if (!acc[item.category]) {
+                    acc[item.category] = {
+                        category: item.category,
+                        total: 0,
+                    };
+                }
+                acc[item.category].total += item.sum;
+                return acc;
+            }, {})
+        );
+
+        const totalSum = result.reduce((sum, item) => sum + item.total, 0);
+
+        res.json({period, result, total: totalSum});
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
+export const getAllTransactionsController = async (req, res) => {
+    const paginationParams = parsePaginationParams(req.query);
+    const {period} = req.query;
+    const userId = req.user._id;
+    const result = await getAllTransactionsService({...paginationParams, userId, period });
+
+    res.status(200).json({message: 'Success received transactions' ,result});
 };
 
 export const updateTransactionController = async (req, res) => {
-  try {
-    const { type, category, amount, date, comment } = req.body;
-    const { id } = req.params;
+    try {
+        const {type, category, amount, date, comment} = req.body;
+        const {id} = req.params;
 
-    if (amount && (amount <= 0 || amount > 1000000)) {
-      return res
-        .status(400)
-        .json({ message: 'Сума має бути більше 0 та менше 1000000' });
+        if (amount && (amount <= 0 || amount > 1000000)) {
+            return res
+                .status(400)
+                .json({message: 'Сума має бути більше 0 та менше 1000000'});
+        }
+
+        const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
+            id,
+            {type, category, amount, date, comment},
+            {new: true},
+        );
+
+        if (!updatedTransaction) {
+            return res.status(404).json({message: 'Транзакція не знайдена'});
+        }
+
+        res.status(200).json(updatedTransaction);
+    } catch (error) {
+        res.status(500).json({message: error.message});
     }
-
-    const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
-      id,
-      { type, category, amount, date, comment },
-      { new: true },
-    );
-
-    if (!updatedTransaction) {
-      return res.status(404).json({ message: 'Транзакція не знайдена' });
-    }
-
-    res.status(200).json(updatedTransaction);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const deleteTransactionController = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedTransaction = await TransactionCollection.findByIdAndDelete(
-      id,
-    );
+    try {
+        const {id} = req.params;
+        const deletedTransaction = await TransactionCollection.findByIdAndDelete(
+            id,
+        );
 
-    if (!deletedTransaction) {
-      return res.status(404).json({ message: 'Транзакція не знайдена' });
+        if (!deletedTransaction) {
+            return res.status(404).json({message: 'Транзакція не знайдена'});
+        }
+
+        res.status(200).json({message: 'Транзакція видалена'});
+    } catch (error) {
+        res.status(500).json({message: error.message});
     }
-
-    res.status(200).json({ message: 'Транзакція видалена' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
