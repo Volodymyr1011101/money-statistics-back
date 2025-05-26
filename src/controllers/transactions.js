@@ -110,6 +110,14 @@ export const updateTransactionController = async (req, res) => {
                 .status(400)
                 .json({message: 'Сума має бути більше 0 та менше 1000000'});
         }
+        const transaction = await TransactionCollection.findOne({_id: id});
+        const user = UserCollection.findOne({_id: transaction.userId});
+
+        const prevBalance = transaction.type === 'income' ?
+            ++user.balance - transaction.sum :
+            ++user.balance + transaction.sum;
+
+        await UserCollection.findOneAndUpdate({_id: user._id}, {balance: prevBalance});
 
         const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
             id,
