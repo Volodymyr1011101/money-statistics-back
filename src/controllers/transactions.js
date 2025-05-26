@@ -137,7 +137,11 @@ export const deleteTransactionController = async (req, res) => {
         const {id} = req.params;
         const transaction= await TransactionCollection.findOne({_id: id});
         const user = await UserCollection.findOne({_id: transaction.userId});
-        const newBalance = Number(user.balance) - Number(transaction.sum);
+        const userBalance = Number(user.balance);
+        const transactionSum = Number(transaction.sum);
+        const newBalance = transaction.type === 'income' ?
+            userBalance - transactionSum :
+            userBalance + transactionSum;
         const deletedTransaction = await TransactionCollection.findOneAndDelete(
             {_id: id},
         );
