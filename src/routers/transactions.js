@@ -32,13 +32,13 @@ transactionRouter.post(
 );
 
 transactionRouter.put(
-  '/update/:id',
+  '/:id',
   validateBody(updateTransactionSchema),
   ctrlWrapper(updateTransactionController),
 );
 
 transactionRouter.delete(
-  '/delete/:id',
+  '/:id',
   ctrlWrapper(deleteTransactionController),
 );
 

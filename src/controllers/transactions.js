@@ -125,7 +125,6 @@ export const updateTransactionController = async (req, res) => {
             const user = await UserCollection.findOne({_id: updatedTransaction.userId});
             const newBalance = calculateBalance(user.balance, sum, type);
             await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
-
         }
         res.status(200).json(updatedTransaction);
     } catch (error) {
@@ -136,9 +135,14 @@ export const updateTransactionController = async (req, res) => {
 export const deleteTransactionController = async (req, res) => {
     try {
         const {id} = req.params;
-        const deletedTransaction = await TransactionCollection.findByIdAndDelete(
-            id,
+        const transaction= await TransactionCollection.findOne({_id: id});
+        const user = await UserCollection.findOne({_id: transaction.userId});
+        const newBalance = calculateBalance(user.balance, transaction.sum, transaction.type);
+        const deletedTransaction = await TransactionCollection.findOneAndDelete(
+            {_id: id},
         );
+
+        await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
 
         if (!deletedTransaction) {
             return res.status(404).json({message: 'Транзакція не знайдена'});
