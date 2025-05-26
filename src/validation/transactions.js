@@ -17,8 +17,7 @@ export const createTransactionSchema = Joi.object({
       'Other expenses',
       'Entertainment',
       'Incomes',
-    )
-    .required(),
+    ),
   type: Joi.string().valid('income', 'expense').required(),
   date: Joi.date().iso().required(),
   comment: Joi.string().allow('').required(),
