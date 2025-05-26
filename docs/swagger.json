@@ -12,6 +12,9 @@
   "servers": [
     {
       "url": "http://localhost:3000"
+    },
+    {
+      "url": "https://money-statistics-back-1.onrender.com"
     }
   ],
   "security": [
@@ -401,7 +404,7 @@
         }
       }
     },
-    "/transactions": {
+    "/transactions/summary": {
       "get": {
         "tags": [
           "Transactions"
