@@ -22,7 +22,6 @@ export const createTransactionSchema = Joi.object({
   type: Joi.string().valid('income', 'expense').required(),
   date: Joi.date().iso().required(),
   comment: Joi.string().allow('').required(),
-  userId: Joi.string().required(),
 });
 
 export const updateTransactionSchema = Joi.object({
