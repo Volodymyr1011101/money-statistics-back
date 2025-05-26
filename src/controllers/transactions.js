@@ -7,9 +7,10 @@ import {colors} from "../constants/index.js";
 
 export const createTransactionController = async (req, res) => {
     try {
-        const {type, category, sum, date, comment, userId} = req.body;
+        const {type, category, sum, date, comment} = req.body;
+        const userId = req.user._id;
 
-        if (!type || !category || !sum || !date || !userId) {
+        if (!type || !category || !sum || !date) {
             return res.status(400).json({message: 'Обов’язкові поля відсутні'});
         }
         const user = await UserCollection.findOne({_id: userId});
