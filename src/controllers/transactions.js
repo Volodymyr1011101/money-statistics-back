@@ -137,12 +137,12 @@ export const deleteTransactionController = async (req, res) => {
         const {id} = req.params;
         const transaction= await TransactionCollection.findOne({_id: id});
         const user = await UserCollection.findOne({_id: transaction.userId});
-        const newBalance = calculateBalance(user.balance, transaction.sum, transaction.type);
+        const newBalance = Number(user.balance) - Number(transaction.sum);
         const deletedTransaction = await TransactionCollection.findOneAndDelete(
             {_id: id},
         );
 
-        await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
+        await UserCollection.findOneAndUpdate({_id: user._id}, {balance: newBalance}, {new: true});
 
         if (!deletedTransaction) {
             return res.status(404).json({message: 'Транзакція не знайдена'});
