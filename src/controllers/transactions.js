@@ -102,41 +102,61 @@ export const getAllTransactionsController = async (req, res) => {
 
 export const updateTransactionController = async (req, res) => {
     try {
-        const {type, category, sum, date, comment} = req.body;
-        const {id} = req.params;
+        const { type, category, sum, date, comment } = req.body;
+        const { id } = req.params;
 
         if (sum && (sum <= 0 || sum > 1000000)) {
             return res
                 .status(400)
-                .json({message: 'Сума має бути більше 0 та менше 1000000'});
+                .json({ message: 'Сума має бути більше 0 та менше 1000000' });
         }
-        const transaction = await TransactionCollection.findOne({_id: id});
-        const user = await UserCollection.findOne({_id: transaction.userId});
-        const prevBalance = transaction.type === 'income' ?
-            ++user.balance - ++transaction.sum :
-            ++user.balance + ++transaction.sum;
-        console.log(prevBalance);
-        await UserCollection.findOneAndUpdate({_id: user._id}, {balance: prevBalance});
 
+        const oldTransaction = await TransactionCollection.findOne({ _id: id });
+
+        if (!oldTransaction) {
+            return res.status(404).json({ message: 'Транзакція не знайдена' });
+        }
+
+        const user = await UserCollection.findOne({ _id: oldTransaction.userId });
+        if (!user) {
+            return res.status(404).json({ message: 'Користувача не знайдено' });
+        }
+
+        let balance = Number(user.balance);
+
+        if (oldTransaction.type === 'income') {
+            balance -= Number(oldTransaction.sum);
+        } else {
+            balance += Number(oldTransaction.sum);
+        }
+        console.log(balance);
+        await UserCollection.findByIdAndUpdate(user._id, { balance });
+
+        const updatedSum = sum !== undefined ? Number(sum) : Number(oldTransaction.sum);
+        const updatedType = type || oldTransaction.type;
+
+        if (updatedType === 'income') {
+            balance += updatedSum;
+        } else {
+            balance -= updatedSum;
+        }
+
+        // 4. Оновлюємо транзакцію
         const updatedTransaction = await TransactionCollection.findByIdAndUpdate(
             id,
-            {type, category, sum, date, comment},
-            {new: true},
+            { type, category, sum, date, comment },
+            { new: true }
         );
-        if (!updatedTransaction) {
-            return res.status(404).json({message: 'Транзакція не знайдена'});
-        }
 
-        if(sum) {
-            const user = await UserCollection.findOne({_id: updatedTransaction.userId});
-            const newBalance = calculateBalance(user.balance, sum, type);
-            await UserCollection.findOneAndUpdate({_id: user._id}, newBalance, {new: true});
-        }
+        // 5. Оновлюємо баланс користувача
+        await UserCollection.findByIdAndUpdate(user._id, { balance });
+
         res.status(200).json(updatedTransaction);
     } catch (error) {
-        res.status(500).json({message: error.message});
+        res.status(500).json({ message: error.message });
     }
 };
+
 
 export const deleteTransactionController = async (req, res) => {
     try {
