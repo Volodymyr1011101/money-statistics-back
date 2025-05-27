@@ -21,6 +21,7 @@ export const registerUser = async (payload) => {
   const session = new SessionCollection({userId: newUser._id, ...newSession});
 
   return {
+      _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
       balance: newUser.balance,

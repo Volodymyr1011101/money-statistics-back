@@ -15,6 +15,7 @@ import {initializeDefaultCategories} from "../services/categories.js";
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
+  console.log(user);
   if(user) {
       await initializeDefaultCategories(user._id);
   }
