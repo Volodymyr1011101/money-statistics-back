@@ -11,10 +11,13 @@ import {
 
 import { COOKIES, HTTP_STATUSES, THIRTY_DAYS } from '../constants/index.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import {initializeDefaultCategories} from "../services/categories.js";
 
 export const registerUserController = async (req, res) => {
   const user = await registerUser(req.body);
-    console.log(user);
+  if(user) {
+      await initializeDefaultCategories(user._id);
+  }
   res.status(HTTP_STATUSES.CREATED).json({
     status: HTTP_STATUSES.CREATED,
     message: 'Successfully registered a user!',

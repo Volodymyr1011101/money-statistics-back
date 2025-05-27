@@ -129,7 +129,6 @@ export const updateTransactionController = async (req, res) => {
         } else {
             balance += Number(oldTransaction.sum);
         }
-        console.log(balance);
         await UserCollection.findByIdAndUpdate(user._id, { balance });
 
         const updatedSum = sum !== undefined ? Number(sum) : Number(oldTransaction.sum);
